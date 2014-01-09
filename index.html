@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="calendar.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="https://api.trello.com/1/client.js?key=a0735835175c7526688f9078d2188472"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+    <script src="calendar.js"></script>
+    <script src="dashboard.js"></script>
+  </head>
+  <body>
+    <div id="logo"><img src="logo.png" height="50px" /></div>
+    <div id="loggedout">
+      <a id="connectLink" href="#">Connect To Trello</a>
+    </div>
+
+    <div id="loggedin">
+      <div id="header">
+        Logged in to Trello as <span id="fullName"></span>
+        <a id="disconnect" href="#">Log Out</a>
+      </div>
+      <div class="row">
+        <div class="col-xs-9">
+          <div id="calendar"></div>
+        </div>
+        <div class="col-xs-3">
+          <div id="no-due-date"></div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+  <script>
+  Trello.authorize({
+    interactive: false,
+    success: window.onAuthorize
+  });
+
+  $("#connectLink").click(function() {
+    Trello.authorize({
+        type: "popup",
+        success: window.onAuthorize,
+        name: 'Arachnys task dashboard'
+    });
+  });
+
+  $("#disconnect").click(window.logout);
+
+  </script>
+</html>
