@@ -16,18 +16,27 @@
     <script src="dashboard.js"></script>
   </head>
   <body>
-    <div id="logo"><img src="logo.png" height="50px" /></div>
+    <div class="full-width-row-wrapper">
+      <div class="row">
+        <div class="col-xs-12">
+          <div id="logo"><img src="logo.png" height="50px" /></div>
+        </div>
+      </div>
+    </div>
     <div id="loggedout">
       <a id="connectLink" href="#">Connect To Trello</a>
     </div>
 
-    <div id="loggedin">
-      <div id="header">
-        Logged in to Trello as <span id="fullName"></span>
-        <a id="disconnect" href="#">Log Out</a>
+    <div id="loggedin" class="full-width-row-wrapper">
+      <div class="row">
+        <div id="header" class="col-xs-12">
+          Logged in to Trello as <span id="fullName"></span>
+          <a id="disconnect" href="#">Log Out</a>
+        </div>
       </div>
       <div class="row">
         <div class="col-xs-9">
+          <h3>Two week project view</h3>
           <div id="calendar"></div>
           <div id="calendar2"></div>
         </div>
