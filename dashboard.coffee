@@ -1,32 +1,63 @@
 
+BOARD_ID = 'UsP5zlas'
+
+window.calendarEvents = {}
+
+window.organizationMembers = {}
+
+window.boardLists = {}
+
 window.onAuthorize = () ->
     updateLoggedIn()
     $("#output").empty()
 
+    loadInitialData(getBoardCards)
+
+getBoardCards = (callback) ->
+    $cards = $("<div>").text("Loading Cards...").appendTo("#calendar");
+    $noDueDate = $('<div>').appendTo('#no-due-date')
+    Trello.get "boards/#{BOARD_ID}/cards", (cards) ->
+        $noDueDate.empty()
+        $('<h3>No due date</h3>').appendTo($noDueDate)
+        window.calendarEvents.trello = []
+        $.each cards, (ix, card) ->
+            initials = (window.organizationMembers[m].initials for m in card.idMembers)
+            if initials.length != 0
+                membersString = " [#{initials.join(', ')}]"
+            else
+                membersString = ""
+            if card.due
+                if window.boardLists[card.idList].name == 'Complete'
+                    cls = 'event-success event-fade'
+                else if window.boardLists[card.idList].name == 'In progress'
+                    cls = 'event-warning'
+                else
+                    cls = 'event-important'
+                window.calendarEvents.trello.push
+                    id: card.url
+                    title: "#{card.name}#{membersString}"
+                    url: card.url
+                    start: new Date(card.due).getTime()
+                    end: new Date(card.due).getTime()
+                    class: cls
+            else
+                link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card")
+                link.text("#{card.name}#{membersString}").appendTo($noDueDate)
+        updateCalendar()
+
+loadInitialData = (callback) ->
     Trello.members.get "me", (member) ->
         $("#fullName").text(member.fullName)
 
-        $cards = $("<div>").text("Loading Cards...").appendTo("#calendar");
-        $noDueDate = $('<div>').appendTo('#no-due-date')
         # Output a list of all of the cards that the member
         # is assigned to
-        Trello.get "boards/UsP5zlas/cards", (cards) ->
-            $noDueDate.empty()
-            $('<h3>No due date</h3>').appendTo($noDueDate)
-            window.calendarEvents.trello = []
-            $.each cards, (ix, card) ->
-                if card.due
-                    window.calendarEvents.trello.push
-                        id: card.url
-                        title: card.name
-                        url: card.url
-                        start: new Date(card.due).getTime()
-                        end: new Date(card.due).getTime()
-                        class: 'event-important'
-                else
-                    link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card")
-                    link.text(card.name).appendTo($noDueDate)
-            updateCalendar()
+        Trello.get "organizations/arachnys1/members?fields=all", (members) ->
+            for member in members
+                window.organizationMembers[member.id] = member
+            Trello.get "boards/#{BOARD_ID}/lists", (lists) ->
+                for list in lists
+                    window.boardLists[list.id] = list
+                callback()
 
 window.updateLoggedIn = () ->
     isLoggedIn = Trello.authorized()
@@ -41,7 +72,6 @@ window.getFeed = () ->
     service = new google.gdata.calendar.CalendarService('arachnys')
     service.getEventsFeed(FEED_URL, handleFeed, handleError)
 
-window.calendarEvents = {}
 
 getHash = (str) ->
     hash = 0
@@ -72,10 +102,12 @@ updateCalendar = (events) ->
         for item in events
             item.id = i
             flat.push item
-    console.debug flat
     window.calendar.setOptions
         events_source: flat
+    window.calendar2.setOptions
+        events_source: flat
     window.calendar.view()
+    window.calendar2.view()
 
 
 handleError = (error) ->
@@ -85,7 +117,13 @@ $ ->
     window.calendar = $('#calendar').calendar
         first_day: 1
         events_source: []
+    window.calendar2 = $('#calendar2').calendar
+        first_day: 1
+        events_source: []
     window.calendar.view('week')
+    window.calendar2.view('week')
+    # About as inelegant as it gets
+    window.calendar2.navigate('next')
     feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
     if not feedUrl
         url = window.prompt('Please enter your Google Calendar feed URL')

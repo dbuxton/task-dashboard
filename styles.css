@@ -26,3 +26,7 @@ body {
     display: block;
     padding: 2px;
 }
+
+.event-fade {
+    opacity: 0.5;
+}
