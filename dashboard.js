@@ -17,15 +17,16 @@
   };
 
   getBoardCards = function(callback) {
-    var $cards, $noDueDate;
-    $cards = $("<div>").text("Loading Cards...").appendTo("#calendar");
-    $noDueDate = $('<div>').appendTo('#no-due-date');
+    var $noDueDate;
+    $noDueDate = $('<div>').text('Loading...').appendTo('#no-due-date');
     return Trello.get("boards/" + BOARD_ID + "/cards", function(cards) {
+      var prevBoardName;
       $noDueDate.empty();
       $('<h3>No due date</h3>').appendTo($noDueDate);
       window.calendarEvents.trello = [];
+      prevBoardName = null;
       $.each(cards, function(ix, card) {
-        var cls, initials, link, m, membersString;
+        var boardName, cls, initials, link, m, membersString;
         initials = (function() {
           var _i, _len, _ref, _results;
           _ref = card.idMembers;
@@ -41,14 +42,15 @@
         } else {
           membersString = "";
         }
+        boardName = window.boardLists[card.idList].name;
+        if (boardName === 'Complete') {
+          cls = 'event-success event-fade';
+        } else if (boardName === 'In progress') {
+          cls = 'event-warning';
+        } else {
+          cls = 'event-important';
+        }
         if (card.due) {
-          if (window.boardLists[card.idList].name === 'Complete') {
-            cls = 'event-success event-fade';
-          } else if (window.boardLists[card.idList].name === 'In progress') {
-            cls = 'event-warning';
-          } else {
-            cls = 'event-important';
-          }
           return window.calendarEvents.trello.push({
             id: card.url,
             title: "" + card.name + membersString,
@@ -58,11 +60,15 @@
             "class": cls
           });
         } else {
+          if (prevBoardName !== boardName) {
+            $("<h4>").text("" + boardName).appendTo($noDueDate);
+          }
           link = $("<a>").attr({
             href: card.url,
             target: "trello"
           }).addClass("card");
-          return link.text("" + card.name + membersString).appendTo($noDueDate);
+          link.text("" + card.name + membersString).appendTo($noDueDate);
+          return prevBoardName = boardName;
         }
       });
       return updateCalendar();
@@ -131,7 +137,7 @@
       entry = entries[_i];
       window.calendarEvents.gcal.push({
         id: getHash(entry.id.$t),
-        title: entry.title.$t,
+        title: "" + entry.title.$t + " on tech duty",
         url: entry.link[0].href,
         start: new Date(entry['gd$when'][0]['startTime']).getTime(),
         end: new Date(entry['gd$when'][0]['endTime']).getTime(),
@@ -182,7 +188,7 @@
     window.calendar2.navigate('next');
     feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'));
     if (!feedUrl) {
-      url = window.prompt('Please enter your Google Calendar feed URL');
+      url = window.prompt('Enter Google Calendar feed URL for tech rota (should end with /full)');
       localStorage.setItem('arachnysDashboardFeedUrl', JSON.stringify(url));
       feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'));
     }

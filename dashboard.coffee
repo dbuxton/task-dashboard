@@ -14,25 +14,26 @@ window.onAuthorize = () ->
     loadInitialData(getBoardCards)
 
 getBoardCards = (callback) ->
-    $cards = $("<div>").text("Loading Cards...").appendTo("#calendar");
-    $noDueDate = $('<div>').appendTo('#no-due-date')
+    $noDueDate = $('<div>').text('Loading...').appendTo('#no-due-date')
     Trello.get "boards/#{BOARD_ID}/cards", (cards) ->
         $noDueDate.empty()
         $('<h3>No due date</h3>').appendTo($noDueDate)
         window.calendarEvents.trello = []
+        prevBoardName = null
         $.each cards, (ix, card) ->
             initials = (window.organizationMembers[m].initials for m in card.idMembers)
             if initials.length != 0
                 membersString = " [#{initials.join(', ')}]"
             else
                 membersString = ""
+            boardName = window.boardLists[card.idList].name
+            if boardName == 'Complete'
+                cls = 'event-success event-fade'
+            else if boardName == 'In progress'
+                cls = 'event-warning'
+            else
+                cls = 'event-important'
             if card.due
-                if window.boardLists[card.idList].name == 'Complete'
-                    cls = 'event-success event-fade'
-                else if window.boardLists[card.idList].name == 'In progress'
-                    cls = 'event-warning'
-                else
-                    cls = 'event-important'
                 window.calendarEvents.trello.push
                     id: card.url
                     title: "#{card.name}#{membersString}"
@@ -41,8 +42,11 @@ getBoardCards = (callback) ->
                     end: new Date(card.due).getTime()
                     class: cls
             else
+                if prevBoardName != boardName
+                    $("<h4>").text("#{boardName}").appendTo($noDueDate)
                 link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card")
                 link.text("#{card.name}#{membersString}").appendTo($noDueDate)
+                prevBoardName = boardName
         updateCalendar()
 
 loadInitialData = (callback) ->
@@ -89,7 +93,7 @@ handleFeed = (feed) ->
     for entry in entries
         window.calendarEvents.gcal.push
             id: getHash(entry.id.$t)
-            title: entry.title.$t
+            title: "#{entry.title.$t} on tech duty"
             url: entry.link[0].href
             start: new Date(entry['gd$when'][0]['startTime']).getTime()
             end: new Date(entry['gd$when'][0]['endTime']).getTime()
@@ -126,7 +130,7 @@ $ ->
     window.calendar2.navigate('next')
     feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
     if not feedUrl
-        url = window.prompt('Please enter your Google Calendar feed URL')
+        url = window.prompt('Enter Google Calendar feed URL for tech rota (should end with /full)')
         localStorage.setItem('arachnysDashboardFeedUrl', JSON.stringify(url))
         feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
     if feedUrl
