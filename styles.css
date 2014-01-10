@@ -44,3 +44,7 @@ body {
 .cal-week-box {
     min-height: 250px;
 }
+
+.cal-context hr {
+    margin-bottom: 0;
+}
