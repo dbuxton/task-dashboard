@@ -1,5 +1,6 @@
 
 BOARD_ID = 'UsP5zlas'
+REFRESH_INTERVAL = 60000
 
 window.calendarEvents = {}
 
@@ -14,8 +15,10 @@ window.onAuthorize = () ->
     loadInitialData(getBoardCards)
 
 getBoardCards = (callback) ->
-    $noDueDate = $('<div>').text('Loading...').appendTo('#no-due-date')
-    Trello.get "boards/#{BOARD_ID}/cards", (cards) ->
+    getCompletedCards()
+    $noDueDate = $('#no-due-date')
+    $('<div>').text('Loading...').appendTo($noDueDate)
+    Trello.get "boards/#{BOARD_ID}/cards?filter=visible", (cards) ->
         $noDueDate.empty()
         $('<h3>No due date</h3>').appendTo($noDueDate)
         window.calendarEvents.trello = []
@@ -48,6 +51,21 @@ getBoardCards = (callback) ->
                 link.text("#{card.name}#{membersString}").appendTo($noDueDate)
                 prevBoardName = boardName
         updateCalendar()
+        setTimeout(getBoardCards, REFRESH_INTERVAL)
+
+getCompletedCards = () ->
+    Trello.get "boards/#{BOARD_ID}/cards?filter=closed&limit=100", (cards) ->
+        closedCards = []
+        now = new Date()
+        for card in cards
+            cardClosedDate = new Date(card.dateLastActivity)
+            daysAgoClosed = (now-cardClosedDate)/1000/3600/24
+            if daysAgoClosed <= 14.0
+                closedCards.push card
+        $complete = $('#completed-cards').empty()
+        $("<h3>Completed/archived cards in last 14 days: #{closedCards.length}</h3>").appendTo($complete)
+        for card in closedCards
+            $("<div class='col-xs-3 card'><a href='#{card.url}'><i class='fa fa-trello'></i> #{card.name}</a></div>").appendTo($complete)
 
 loadInitialData = (callback) ->
     Trello.members.get "me", (member) ->
@@ -113,9 +131,20 @@ updateCalendar = (events) ->
     window.calendar.view()
     window.calendar2.view()
 
+updateGcal = () ->
+    feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
+    if not feedUrl
+        url = window.prompt('Enter Google Calendar feed URL for tech rota (should end with /full)')
+        localStorage.setItem('arachnysDashboardFeedUrl', JSON.stringify(url))
+        feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
+    if feedUrl
+        $.getJSON "#{feedUrl}?alt=json-in-script&callback=?", (data) ->
+            handleFeed data.feed
+            # Poll for changes
+            setTimeout(updateGcal, REFRESH_INTERVAL)
+    else
+        window.alert('Not possible to load Google Calendar data')
 
-handleError = (error) ->
-    console.debug error
 
 $ ->
     window.calendar = $('#calendar').calendar
@@ -128,14 +157,5 @@ $ ->
     window.calendar2.view('week')
     # About as inelegant as it gets
     window.calendar2.navigate('next')
-    feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
-    if not feedUrl
-        url = window.prompt('Enter Google Calendar feed URL for tech rota (should end with /full)')
-        localStorage.setItem('arachnysDashboardFeedUrl', JSON.stringify(url))
-        feedUrl = JSON.parse(localStorage.getItem('arachnysDashboardFeedUrl'))
-    if feedUrl
-        $.getJSON "#{feedUrl}?alt=json-in-script&callback=?", (data) ->
-            handleFeed data.feed
-    else
-        window.alert('Not possible to load Google Calendar data')
+    updateGcal()
 
