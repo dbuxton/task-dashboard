@@ -51,5 +51,17 @@ body {
 }
 
 #completed-cards .card {
-    padding: 7px;
+}
+
+#completed-cards .card-inner {
+    margin: 5px;
+    border: 1px solid #eee;
+    padding: 7px 30px 7px 7px;
+    border-radius: 3px;
+}
+
+.event-large {
+    height:35px;
+    white-space: normal !important;
+    padding-right: 30px;
 }
