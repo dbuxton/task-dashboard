@@ -51,6 +51,7 @@ body {
 }
 
 #completed-cards .card {
+    opacity: 0.75;
 }
 
 #completed-cards .card-inner {
