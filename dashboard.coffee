@@ -22,7 +22,7 @@ getBoardCards = (callback) ->
     $('<div>').text('Loading...').appendTo($noDueDate)
     Trello.get "boards/#{BOARD_ID}/cards?filter=visible", (cards) ->
         $noDueDate.empty()
-        $('<h3>No due date</h3>').appendTo($noDueDate)
+        $('<h4>No due date</h4>').appendTo($noDueDate)
         window.calendarEvents.trello = []
         prevBoardName = null
         $.each cards, (ix, card) ->
@@ -44,7 +44,7 @@ getBoardCards = (callback) ->
                     class: cls
             else
                 if prevBoardName != boardName
-                    $("<h4>").text("#{boardName}").appendTo($noDueDate)
+                    $("<h5>").text("#{boardName}").appendTo($noDueDate)
                 link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large'}")
                 link.text("#{card.name}#{metadata.membersString}").appendTo($noDueDate)
                 prevBoardName = boardName
@@ -73,7 +73,7 @@ getCompletedCards = () ->
             if daysAgoClosed <= 14.0
                 closedCards.push card
         $complete = $('#completed-cards').empty()
-        $("<h3>Completed/archived cards in last 14 days: #{closedCards.length}</h3>").appendTo($complete)
+        $("<h4>Completed/archived cards in last 14 days: #{closedCards.length}</h4>").appendTo($complete)
         count = 0
         for card in closedCards
             metadata = formatCardMetaData(card.idMembers)

@@ -32,7 +32,7 @@
     return Trello.get("boards/" + BOARD_ID + "/cards?filter=visible", function(cards) {
       var prevBoardName;
       $noDueDate.empty();
-      $('<h3>No due date</h3>').appendTo($noDueDate);
+      $('<h4>No due date</h4>').appendTo($noDueDate);
       window.calendarEvents.trello = [];
       prevBoardName = null;
       $.each(cards, function(ix, card) {
@@ -57,7 +57,7 @@
           });
         } else {
           if (prevBoardName !== boardName) {
-            $("<h4>").text("" + boardName).appendTo($noDueDate);
+            $("<h5>").text("" + boardName).appendTo($noDueDate);
           }
           link = $("<a>").attr({
             href: card.url,
@@ -118,7 +118,7 @@
         }
       }
       $complete = $('#completed-cards').empty();
-      $("<h3>Completed/archived cards in last 14 days: " + closedCards.length + "</h3>").appendTo($complete);
+      $("<h4>Completed/archived cards in last 14 days: " + closedCards.length + "</h4>").appendTo($complete);
       count = 0;
       _results = [];
       for (_j = 0, _len1 = closedCards.length; _j < _len1; _j++) {

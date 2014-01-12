@@ -19,33 +19,31 @@
   <body>
     <div class="full-width-row-wrapper">
       <div class="row">
-        <div class="col-xs-12">
-          <div id="logo"><img src="logo.png" height="50px" /></div>
-        </div>
-      </div>
-    </div>
-    <div id="loggedout">
-      <a id="connectLink" href="#">Connect To Trello</a>
-    </div>
-
-    <div id="loggedin" class="full-width-row-wrapper">
-      <div class="row">
-        <div id="header" class="col-xs-12">
-          Logged in to Trello as <span id="fullName"></span>
-          <a id="disconnect" href="#">Log Out</a>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-xs-9">
-          <h3>Next two weeks</h3>
+        <div class="col-xs-12 col-md-9">
           <div id="calendar"></div>
           <div id="calendar2"></div>
           <div id="completed-cards"></div>
         </div>
-        <div class="col-xs-3">
+        <div class="col-xs-12 col-md-3 hl-left">
+          <div class="row">
+            <div class="col-xs-12">
+              <div id="logo"><img src="logo.png" height="50px" /></div>
+            </div>
+          </div>
+          <div class="row" id="loggedout">
+            <div class="col-xs-12">
+              <a id="connectLink" href="#">Connect To Trello</a>
+            </div>
+          </div>
+          <div class="row" id="loggedin">
+            <div id="header" class="col-xs-12">
+              Logged in to Trello as <span id="fullName"></span>
+              <a id="disconnect" href="#">Log Out</a>
+            </div>
+          </div>
           <div id="ongoing-priorities">
           <a style="float: right; font-size: 9px;" href="https://arachnys.hackpad.com/Ongoing-priorities-5U6dKX4w2Rm">edit hackpad</a>
-            <h3>Ongoing priorities</h3>
+            <h4>Ongoing priorities</h4>
             <script src="https://arachnys.hackpad.com/5U6dKX4w2Rm.js?format=html-notitle"></script>
           </div>
           <div id="no-due-date"></div>
