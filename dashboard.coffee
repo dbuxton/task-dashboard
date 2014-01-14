@@ -201,6 +201,20 @@ getPipedriveActivities = (apiKey) ->
                         class: 'event-warning'
                 updateCalendar()
 
+window.getEventLine = (eventHash, idx) ->
+    ret = {}
+    hasItem = false
+    for k, v of eventHash
+        if idx < v.length
+            hasItem = true
+            ret[k] = v[idx]
+        else
+            ret[k] = null
+    if hasItem
+        return ret
+    else
+        return {}
+
 
 $ ->
     window.calendar = $('#calendar').calendar

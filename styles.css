@@ -61,6 +61,10 @@ body {
     border-radius: 3px;
 }
 
+.cal-cell1 {
+    padding-left: 3px;
+}
+
 .event-large {
     height:35px;
     white-space: normal !important;

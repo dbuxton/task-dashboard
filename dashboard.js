@@ -306,6 +306,26 @@
     });
   };
 
+  window.getEventLine = function(eventHash, idx) {
+    var hasItem, k, ret, v;
+    ret = {};
+    hasItem = false;
+    for (k in eventHash) {
+      v = eventHash[k];
+      if (idx < v.length) {
+        hasItem = true;
+        ret[k] = v[idx];
+      } else {
+        ret[k] = null;
+      }
+    }
+    if (hasItem) {
+      return ret;
+    } else {
+      return {};
+    }
+  };
+
   $(function() {
     window.calendar = $('#calendar').calendar({
       first_day: 1,

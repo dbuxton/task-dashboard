@@ -438,7 +438,25 @@ if(!String.prototype.format) {
 
       events.push(event);
     });
+    var eventHash = {}
+    for (i=0; i<7; i++) {
+      eventHash[i] = []
+    }
+    for (i=0; i<events.length; i++) {
+      eventHash[events[i].start_day].push(events[i])
+    }
+    var eventLines = []
+    var i = 0;
+    while (true) {
+      var thisLine = window.getEventLine(eventHash, i)
+      if (Object.getOwnPropertyNames(thisLine).length === 0) break;
+      eventLines.push(thisLine);
+      i++;
+    }
+    console.debug(eventLines);
     t.events = events;
+    t.eventHash = eventHash;
+    t.eventLines = eventLines;
     t.cal = this;
     return self.options.templates['week-days'](t);
   }
