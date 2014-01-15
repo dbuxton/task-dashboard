@@ -91,7 +91,17 @@ body {
 
 .hl-left {
     border-left: 1px solid #eee;
-    height:700px;
     overflow: auto;
     border-bottom: 1px solid #eee;
+}
+
+#sidebar {
+    position: fixed;
+    top:0;
+    bottom: 0;
+    right:0;
+}
+
+#no-due-date .event-success {
+    background-color: #DBFFDB;
 }

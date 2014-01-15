@@ -13,6 +13,11 @@ NAME_TO_INITIALS_MAPPING =
     "Enric Castane": "EC"
     "Minna Cowper-Coles": "MCC"
     "Board Members": "BM"
+    "david": "DB"
+    "harry": "HW"
+    "matthew": "MB"
+    "mateusz": "MK"
+    "james": "JP"
 
 window.calendarEvents = {}
 
@@ -27,6 +32,12 @@ window.onAuthorize = () ->
     $("#output").empty()
     loadInitialData(getBoardCards)
 
+getMonday = (d) ->
+    d = new Date(d)
+    day = d.getDay()
+    diff = d.getDate() - day + (day == 0 ? -6:1)
+    return new Date(d.setDate(diff))
+
 getBoardCards = (callback) ->
     getCompletedCards()
     $noDueDate = $('#no-due-date')
@@ -37,6 +48,7 @@ getBoardCards = (callback) ->
         window.calendarEvents.trello = []
         prevBoardName = null
         now = new Date()
+        firstOfWeek = getMonday(now)
         $.each cards, (ix, card) ->
             metadata = formatCardMetaData(card.idMembers)
             boardName = window.boardLists[card.idList].name
@@ -46,18 +58,19 @@ getBoardCards = (callback) ->
                 cls = "event-progress #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
             else
                 cls = "event-not-started #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
-            if card.due
+            dueDate = new Date(card.due).getTime()
+            if card.due and dueDate > firstOfWeek.getTime()
                 window.calendarEvents.trello.push
                     id: card.url
                     title: "#{card.name}#{metadata.membersString}"
                     url: card.url
-                    start: new Date(card.due).getTime()
-                    end: new Date(card.due).getTime()
+                    start: dueDate
+                    end: dueDate
                     class: cls
             else
                 if prevBoardName != boardName
                     $("<h5>").text("#{boardName}").appendTo($noDueDate)
-                link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large'}")
+                link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card #{cls}")
                 link.text("#{card.name}#{metadata.membersString}").appendTo($noDueDate)
                 prevBoardName = boardName
         updateCalendar()
@@ -88,10 +101,10 @@ getCompletedCards = () ->
         for card in cards
             cardClosedDate = new Date(card.dateLastActivity)
             daysAgoClosed = (now-cardClosedDate)/1000/3600/24
-            if daysAgoClosed <= 14.0
+            if daysAgoClosed <= 7.0
                 closedCards.push card
         $complete = $('#completed-cards').empty()
-        $("<h4>Completed/archived cards in last 14 days: #{closedCards.length}</h4>").appendTo($complete)
+        $("<h4>Completed/archived cards in last 7 days: #{closedCards.length}</h4>").appendTo($complete)
         count = 0
         for card in closedCards
             metadata = formatCardMetaData(card.idMembers)
@@ -150,13 +163,19 @@ handleFeed = (feed) ->
     window.calendarEvents.gcal = []
     entries = feed.entry
     for entry in entries
+        initials = NAME_TO_INITIALS_MAPPING[entry.title.$t.toLowerCase()]
+        if (not initials) or (not organizationMembersInitials[initials]?)
+            console.error "No initials for", entry.title.$t
+            return
+        member = organizationMembersInitials[initials]
+        metadata = formatCardMetaData([member.id])
         window.calendarEvents.gcal.push
             id: getHash(entry.id.$t)
             title: "#{entry.title.$t} on tech duty"
             url: entry.link[0].href
             start: new Date(entry['gd$when'][0]['startTime']).getTime()
             end: new Date(entry['gd$when'][0]['endTime']).getTime()
-            class: 'event-warning'
+            class: "event-warning #{metadata.avatarString} event-large"
     updateCalendar()
 
 updateCalendar = (events) ->
@@ -255,7 +274,8 @@ $ ->
     window.calendar2.view('week')
     # About as inelegant as it gets
     window.calendar2.navigate('next')
-    updateGcal()
+    # racy
+    setTimeout(updateGcal, 1000)
     # Disable until we can work out layout
     #updatePipedrive()
 
