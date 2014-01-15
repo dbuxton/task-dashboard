@@ -156,7 +156,7 @@ handleFeed = (feed) ->
             url: entry.link[0].href
             start: new Date(entry['gd$when'][0]['startTime']).getTime()
             end: new Date(entry['gd$when'][0]['endTime']).getTime()
-            class: 'event-info'
+            class: 'event-warning'
     updateCalendar()
 
 updateCalendar = (events) ->
