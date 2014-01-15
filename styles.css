@@ -44,11 +44,11 @@ body {
     overflow: hidden;
 }
 
-.event-progress {
+.dh-event-progress {
     background-color: #d1e8ff;
 }
 
-.event-progress.event-in-past {
+.dh-event-progress.event-in-past {
     background-color: #fae3e3;
 }
 

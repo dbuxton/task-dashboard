@@ -56,7 +56,7 @@
         if (boardName === "Complete") {
           cls = "event-success event-fade " + metadata.avatarString + " " + (metadata.avatarString !== '' ? 'event-large' : '');
         } else if (boardName === "In progress") {
-          cls = "" + metadata.avatarString + " event-progress " + (metadata.avatarString !== '' ? 'event-large' : '') + " " + (inPast(card.due, now) ? 'event-in-past' : '');
+          cls = "event-progress " + metadata.avatarString + " " + (metadata.avatarString !== '' ? 'event-large' : '') + " " + (inPast(card.due, now) ? 'event-in-past' : '');
         } else {
           cls = "event-not-started " + metadata.avatarString + " " + (metadata.avatarString !== '' ? 'event-large' : '') + " " + (inPast(card.due, now) ? 'event-in-past' : '');
         }

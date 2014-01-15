@@ -43,7 +43,7 @@ getBoardCards = (callback) ->
             if boardName == "Complete"
                 cls = "event-success event-fade #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''}"
             else if boardName == "In progress"
-                cls = "#{metadata.avatarString} event-progress #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
+                cls = "event-progress #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
             else
                 cls = "event-not-started #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
             if card.due
