@@ -4,10 +4,21 @@ REFRESH_INTERVAL = 60000
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
 PIPEDRIVE_API_KEY_LS_KEY = 'arachnysPipedriveApiKey'
 PIPEDRIVE_API_BASE = 'https://api.pipedrive.com/v1'
+NAME_TO_INITIALS_MAPPING =
+    "David Buxton": "DB"
+    "Mike Cerillo": "MC"
+    "Lynn Petesch": "L"
+    "Aaron Tanner": "AT"
+    "Hollie Tu": "HT"
+    "Enric Castane": "EC"
+    "Minna Cowper-Coles": "MCC"
+    "Board Members": "BM"
 
 window.calendarEvents = {}
 
+# This is why we should do this with models
 window.organizationMembers = {}
+window.organizationMembersInitials = {}
 
 window.boardLists = {}
 
@@ -25,15 +36,16 @@ getBoardCards = (callback) ->
         $('<h4>No due date</h4>').appendTo($noDueDate)
         window.calendarEvents.trello = []
         prevBoardName = null
+        now = new Date()
         $.each cards, (ix, card) ->
             metadata = formatCardMetaData(card.idMembers)
             boardName = window.boardLists[card.idList].name
             if boardName == "Complete"
-                cls = "event-success event-fade #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large'}"
+                cls = "event-success event-fade #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''}"
             else if boardName == "In progress"
-                cls = "event-warning #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large'}"
+                cls = "#{metadata.avatarString} event-progress #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
             else
-                cls = "event-important #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large'}"
+                cls = "event-not-started #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
             if card.due
                 window.calendarEvents.trello.push
                     id: card.url
@@ -50,6 +62,12 @@ getBoardCards = (callback) ->
                 prevBoardName = boardName
         updateCalendar()
         setTimeout(getBoardCards, REFRESH_INTERVAL)
+
+inPast = (eventStart, now) ->
+    startDate = new Date(eventStart)
+    if not eventStart?
+        return false
+    return (now.getTime() - startDate.getTime()) > 0
 
 formatCardMetaData = (members) ->
     metadata = {}
@@ -91,6 +109,7 @@ loadInitialData = (callback) ->
         Trello.get "organizations/arachnys1/members?fields=all", (members) ->
             for member in members
                 window.organizationMembers[member.id] = member
+                window.organizationMembersInitials[member.initials] = member
                 setAvatarStyle member.initials, member.avatarHash
 
             Trello.get "boards/#{BOARD_ID}/lists", (lists) ->
@@ -188,17 +207,24 @@ getPipedriveActivities = (apiKey) ->
             userHash[u.id] = u
         for user in users
             $.getJSON "#{PIPEDRIVE_API_BASE}/activities/?done=0&api_token=#{apiKey}&user_id=#{user.id}", (activityData) ->
+                if not activityData.data?
+                    return
                 for activity in activityData.data
                     date = new Date(activity.due_date).getTime()
                     user = userHash[activity.user_id]
-                    console.debug user, userHash
+                    initials = NAME_TO_INITIALS_MAPPING[user.name]
+                    if (not initials) or (not organizationMembersInitials[initials]?)
+                        console.error "No initials for", user
+                        return
+                    member = organizationMembersInitials[initials]
+                    metadata = formatCardMetaData([member.id])
                     window.calendarEvents.pipedrive.push
                         id: activity.id
-                        title: "#{activity.subject} [#{user.name}]"
+                        title: "#{activity.subject} #{metadata.membersString}"
                         url: "https://app.pipedrive.com/org/details/#{activity.org_id}"
                         start: date
                         end: date
-                        class: 'event-warning'
+                        class: "event-warning #{metadata.avatarString} event-large"
                 updateCalendar()
 
 window.getEventLine = (eventHash, idx) ->
@@ -219,9 +245,11 @@ window.getEventLine = (eventHash, idx) ->
 $ ->
     window.calendar = $('#calendar').calendar
         first_day: 1
+        show_weekends: 0
         events_source: []
     window.calendar2 = $('#calendar2').calendar
         first_day: 1
+        show_weekends: 0
         events_source: []
     window.calendar.view('week')
     window.calendar2.view('week')

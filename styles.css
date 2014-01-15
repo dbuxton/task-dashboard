@@ -37,6 +37,29 @@ body {
     opacity: 0.5;
 }
 
+.event-large {
+    height:35px;
+    white-space: normal !important;
+    padding-right: 30px;
+    overflow: hidden;
+}
+
+.event-progress {
+    background-color: #d1e8ff;
+}
+
+.event-progress.event-in-past {
+    background-color: #fae3e3;
+}
+
+.dh-event-not-started {
+    background-color: #dddddd;
+}
+
+.dh-event-not-started.event-in-past {
+    background-color: #fae3e3;
+}
+
 .full-width-row-wrapper {
     padding: 0 15px;
 }
@@ -65,11 +88,6 @@ body {
     padding-left: 3px;
 }
 
-.event-large {
-    height:35px;
-    white-space: normal !important;
-    padding-right: 30px;
-}
 
 .hl-left {
     border-left: 1px solid #eee;

@@ -376,7 +376,11 @@ if(!String.prototype.format) {
 
     // Getting list of days in a week in correct order. Works for month and week views
     if(getExtentedOption(this, 'first_day') == 1) {
-      data.months = [this.locale.d1, this.locale.d2, this.locale.d3, this.locale.d4, this.locale.d5, this.locale.d6, this.locale.d0]
+      if(getExtentedOption(this, 'show_weekends') == 0) {
+        data.months = [this.locale.d1, this.locale.d2, this.locale.d3, this.locale.d4, this.locale.d5]
+      } else {
+        data.months = [this.locale.d1, this.locale.d2, this.locale.d3, this.locale.d4, this.locale.d5, this.locale.d6, this.locale.d0]
+      }
     } else {
       data.months = [this.locale.d0, this.locale.d1, this.locale.d2, this.locale.d3, this.locale.d4, this.locale.d5, this.locale.d6]
     }
@@ -432,9 +436,15 @@ if(!String.prototype.format) {
 
       event.days = Math.ceil(event.days);
 
+      // Move Sat and Sun back to Fri
+      if(event.start_day === 5 || event.start_day === 6) {
+        event.start_day = 4;
+      }
+
       if(event.start_day + event.days > 7) {
         event.days = 7 - (event.start_day);
       }
+
 
       events.push(event);
     });
@@ -453,9 +463,7 @@ if(!String.prototype.format) {
       eventLines.push(thisLine);
       i++;
     }
-    console.debug(eventLines);
     t.events = events;
-    t.eventHash = eventHash;
     t.eventLines = eventLines;
     t.cal = this;
     return self.options.templates['week-days'](t);
