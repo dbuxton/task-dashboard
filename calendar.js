@@ -439,26 +439,31 @@ if(!String.prototype.format) {
       // Move Sat and Sun back to Fri
       if(event.start_day === 5 || event.start_day === 6) {
         event.start_day = 4;
+        if (event.title.indexOf(' (weekend)') === -1) {
+          event.title = event.title + " (weekend)"
+        }
       }
-
-      if(event.start_day + event.days > 7) {
-        event.days = 7 - (event.start_day);
+      if(event.start_day + event.days > 5) {
+        event.days = 5 - (event.start_day);
       }
 
 
       events.push(event);
     });
     var eventHash = {}
-    for (i=0; i<7; i++) {
-      eventHash[i] = []
+    for (var i=0; i<7; i++) {
+      eventHash[i] = [];
     }
-    for (i=0; i<events.length; i++) {
-      eventHash[events[i].start_day].push(events[i])
+    for (var i=0; i<events.length; i++) {
+      eventHash[events[i].start_day].push(events[i]);
+      for (var j=1; j<events[i].days; j++) {
+        eventHash[events[i].start_day+j].push(events[i]);
+      }
     }
-    var eventLines = []
+    var eventLines = [];
     var i = 0;
     while (true) {
-      var thisLine = window.getEventLine(eventHash, i)
+      var thisLine = window.getEventLine(eventHash, i);
       if (Object.getOwnPropertyNames(thisLine).length === 0) break;
       eventLines.push(thisLine);
       i++;

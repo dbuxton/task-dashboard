@@ -269,7 +269,6 @@
       events = _ref[source];
       for (_i = 0, _len = events.length; _i < _len; _i++) {
         item = events[_i];
-        item.id = i;
         flat.push(item);
       }
     }

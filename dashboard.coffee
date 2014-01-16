@@ -182,7 +182,6 @@ updateCalendar = (events) ->
     flat = []
     for source, events of window.calendarEvents
         for item in events
-            item.id = i
             flat.push item
     window.calendar.setOptions
         events_source: flat
