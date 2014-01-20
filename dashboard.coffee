@@ -44,7 +44,7 @@ getBoardCards = (callback) ->
     $('<div>').text('Loading...').appendTo($noDueDate)
     Trello.get "boards/#{BOARD_ID}/cards?filter=visible", (cards) ->
         $noDueDate.empty()
-        $('<h4>No due date</h4>').appendTo($noDueDate)
+        $('<h4>No due date/in past</h4>').appendTo($noDueDate)
         window.calendarEvents.trello = []
         prevBoardName = null
         now = new Date()

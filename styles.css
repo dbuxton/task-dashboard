@@ -60,6 +60,10 @@ body {
     background-color: #fae3e3;
 }
 
+.card.event-in-past {
+    background-color: #fae3e3;
+}
+
 .full-width-row-wrapper {
     padding: 0 15px;
 }
@@ -103,6 +107,6 @@ body {
     right:0;
 }
 
-#no-due-date .event-success {
+.card.event-success {
     background-color: #DBFFDB;
 }
