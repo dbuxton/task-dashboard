@@ -1,6 +1,7 @@
 
 BOARD_ID = 'UsP5zlas'
 REFRESH_INTERVAL = 60000
+AUTOREFRESH_HOURS = 6
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
 PIPEDRIVE_API_KEY_LS_KEY = 'arachnysPipedriveApiKey'
 PIPEDRIVE_API_BASE = 'https://api.pipedrive.com/v1'
@@ -259,6 +260,9 @@ window.getEventLine = (eventHash, idx) ->
     else
         return {}
 
+refreshPage = () ->
+    # So we always have most up-to-date code
+    window.location.href = window.location.href
 
 $ ->
     window.calendar = $('#calendar').calendar
@@ -275,6 +279,7 @@ $ ->
     window.calendar2.navigate('next')
     # racy
     setTimeout(updateGcal, 1000)
-    # Disable until we can work out layout
     #updatePipedrive()
+    setTimeout(refreshPage, 1000*60*60*AUTOREFRESH_HOURS)
+    # Disable until we can work out layout
 
