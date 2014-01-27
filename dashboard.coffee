@@ -279,7 +279,7 @@ $ ->
     window.calendar2.navigate('next')
     # racy
     setTimeout(updateGcal, 1000)
-    #updatePipedrive()
     setTimeout(refreshPage, 1000*60*60*AUTOREFRESH_HOURS)
     # Disable until we can work out layout
+    #updatePipedrive()
 
