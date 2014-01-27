@@ -28,6 +28,52 @@ window.organizationMembersInitials = {}
 
 window.boardLists = {}
 
+
+# Models
+List = Backbone.Model.extend
+    defaults:
+        id: null
+        url: null
+
+User = Backbone.Model.extend
+    defaults:
+        initials: "NI"
+        name: "No name"
+        avatarHash: null
+
+Card = Backbone.Model.extend
+    defaults:
+        id: null
+        title: "No title"
+        url: "#"
+        start: null
+        end: null
+        class: "card"
+        listId: null
+        complete: false
+        userIds: []
+
+    inPast: () ->
+        now = new Date()
+        startDate = new Date(this.get('start'))
+        if not startDate?
+            return false
+        return (now.getTime() - startDate.getTime()) > 0
+
+# Collections
+Cards = Backbone.Collection.extend
+    model: Card
+
+Users = Backbone.Collection.extend
+    model: User
+
+Lists = Backbone.Collection.extend
+    model: List
+
+    initialize: () ->
+        @cards = new Cards
+
+
 window.onAuthorize = () ->
     updateLoggedIn()
     $("#output").empty()
@@ -44,6 +90,7 @@ getBoardCards = (callback) ->
     $noDueDate = $('#no-due-date')
     $('<div>').text('Loading...').appendTo($noDueDate)
     Trello.get "boards/#{BOARD_ID}/cards?filter=visible", (cards) ->
+
         $noDueDate.empty()
         $('<h4>No due date/in past</h4>').appendTo($noDueDate)
         window.calendarEvents.trello = []
@@ -77,11 +124,7 @@ getBoardCards = (callback) ->
         updateCalendar()
         setTimeout(getBoardCards, REFRESH_INTERVAL)
 
-inPast = (eventStart, now) ->
-    startDate = new Date(eventStart)
-    if not eventStart?
-        return false
-    return (now.getTime() - startDate.getTime()) > 0
+
 
 formatCardMetaData = (members) ->
     metadata = {}
