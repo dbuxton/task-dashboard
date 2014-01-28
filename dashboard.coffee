@@ -1,5 +1,5 @@
 
-BOARD_ID = 'UsP5zlas'
+TRELLO_BOARDS = ['UsP5zlas']
 REFRESH_INTERVAL = 60000
 AUTOREFRESH_HOURS = 6
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
@@ -34,6 +34,7 @@ List = Backbone.Model.extend
     defaults:
         id: null
         url: null
+        name: "No name"
 
 User = Backbone.Model.extend
     defaults:
@@ -60,6 +61,9 @@ Card = Backbone.Model.extend
             return false
         return (now.getTime() - startDate.getTime()) > 0
 
+    viewEvent: () ->
+        window.location.href = url
+
 # Collections
 Cards = Backbone.Collection.extend
     model: Card
@@ -72,6 +76,42 @@ Lists = Backbone.Collection.extend
 
     initialize: () ->
         @cards = new Cards
+
+users = new Users
+
+lists = new Lists
+
+calendarCards = new Cards
+
+CardView = Backbone.View.extend
+    tagname: "li"
+    template: _.template $('#item-template').html()
+    events:
+        click: "viewEvent"
+    initialize: () ->
+        @listenTo(@model, 'change', @render)
+    render: () ->
+        @$el.html(@template(@model.toJSON()))
+        return @
+
+# We don't need a view for calendar as that's handled by lib
+# We do for other things though
+
+CompleteCardsView = Backbone.View.extend
+    el: $("#completed-cards")
+    initialize: () ->
+        @listenTo(CalendarCards, 'add', @addOne)
+        @listenTo(CalendarCards, 'reset', @addAll)
+
+    addOne: (card) ->
+        if card.complete
+            view = new CardView
+                model: card
+            @$("#completed-cards").append(view.render().el)
+
+    addAll: () ->
+        complete = new Cards(CalendarCards.where({complete: true}))
+        complete.each(@addOne, @)
 
 
 window.onAuthorize = () ->
@@ -87,42 +127,48 @@ getMonday = (d) ->
 
 getBoardCards = (callback) ->
     getCompletedCards()
-    $noDueDate = $('#no-due-date')
+    $noDueDate = $('#no-due-date').empty()
+    $('<h4>No due date/in past</h4>').appendTo($noDueDate)
     $('<div>').text('Loading...').appendTo($noDueDate)
-    Trello.get "boards/#{BOARD_ID}/cards?filter=visible", (cards) ->
-
-        $noDueDate.empty()
-        $('<h4>No due date/in past</h4>').appendTo($noDueDate)
-        window.calendarEvents.trello = []
-        prevBoardName = null
-        now = new Date()
-        firstOfWeek = getMonday(now)
-        $.each cards, (ix, card) ->
-            metadata = formatCardMetaData(card.idMembers)
-            boardName = window.boardLists[card.idList].name
-            if boardName == "Complete"
-                cls = "event-success event-fade #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''}"
-            else if boardName == "In progress"
-                cls = "event-progress #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
-            else
-                cls = "event-not-started #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
-            dueDate = new Date(card.due).getTime()
-            if card.due and dueDate > firstOfWeek.getTime()
-                window.calendarEvents.trello.push
+    now = new Date()
+    firstOfWeek = getMonday(now)
+    $.each TRELLO_BOARDS, (idx, boardId) ->
+        Trello.get "boards/#{boardId}/cards?filter=visible", (cards) ->
+            $.each cards, (ix, card) ->
+                calendarCards.create
                     id: card.url
-                    title: "#{card.name}#{metadata.membersString}"
+                    title: card.name
+                    members: card.userIds
+                    listId: card.idList
                     url: card.url
-                    start: dueDate
-                    end: dueDate
-                    class: cls
-            else
-                if prevBoardName != boardName
-                    $("<h5>").text("#{boardName}").appendTo($noDueDate)
-                link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card #{cls}")
-                link.text("#{card.name}#{metadata.membersString}").appendTo($noDueDate)
-                prevBoardName = boardName
-        updateCalendar()
-        setTimeout(getBoardCards, REFRESH_INTERVAL)
+                    start: new Date(card.due).getTime()
+                    end: new Date(card.due).getTime()
+                    complete: false
+
+
+                metadata = formatCardMetaData(card.idMembers)
+                boardName = window.boardLists[card.idList].name
+                if boardName == "Complete"
+                    cls = "event-success event-fade #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''}"
+                else if boardName == "In progress"
+                    cls = "event-progress #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
+                else
+                    cls = "event-not-started #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
+                dueDate = new Date(card.due).getTime()
+                if card.due and dueDate > firstOfWeek.getTime()
+                    window.calendarEvents.trello.push
+                        id: card.url
+                        title: "#{card.name}#{metadata.membersString}"
+                        url: card.url
+                        start: dueDate
+                        end: dueDate
+                        class: cls
+                else
+                    if prevBoardName != boardName
+                        $("<h5>").text("#{boardName}").appendTo($noDueDate)
+                    link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card #{cls}")
+                    link.text("#{card.name}#{metadata.membersString}").appendTo($noDueDate)
+                    prevBoardName = boardName
 
 
 
@@ -139,23 +185,22 @@ formatCardMetaData = (members) ->
     return metadata
 
 getCompletedCards = () ->
-    Trello.get "boards/#{BOARD_ID}/cards?filter=closed&limit=100", (cards) ->
-        closedCards = []
-        now = new Date()
-        for card in cards
-            cardClosedDate = new Date(card.dateLastActivity)
-            daysAgoClosed = (now-cardClosedDate)/1000/3600/24
-            if daysAgoClosed <= 7.0
-                closedCards.push card
-        $complete = $('#completed-cards').empty()
-        $("<h4>Completed/archived cards in last 7 days: #{closedCards.length}</h4>").appendTo($complete)
-        count = 0
-        for card in closedCards
-            metadata = formatCardMetaData(card.idMembers)
-            if count % 4 == 0
-                $row = $("<div class='row'></div>").appendTo($complete)
-            $("<div class='col-md-3 card'><div class='card-inner #{metadata.avatarString}'><i class='fa fa-trello'></i> <a href='#{card.url}'>#{card.name}#{metadata.membersString}</a></div></div>").appendTo($row)
-            count++
+    now = new Date()
+    $.each TRELLO_BOARDS, (idx, boardId) ->
+        Trello.get "boards/#{boardId}/cards?filter=closed&limit=100", (cards) ->
+            for card in cards
+                cardClosedDate = new Date(card.dateLastActivity)
+                daysAgoClosed = (now-cardClosedDate)/1000/3600/24
+                if daysAgoClosed <= 7.0
+                    calendarCards.create
+                        id: card.url
+                        title: card.name
+                        members: card.userIds
+                        listId: card.idList
+                        url: card.url
+                        start: new Date(card.due).getTime()
+                        end: new Date(card.due).getTime()
+                        complete: true
 
 loadInitialData = (callback) ->
     Trello.members.get "me", (member) ->
@@ -165,14 +210,18 @@ loadInitialData = (callback) ->
         # is assigned to
         Trello.get "organizations/arachnys1/members?fields=all", (members) ->
             for member in members
-                window.organizationMembers[member.id] = member
-                window.organizationMembersInitials[member.initials] = member
-                setAvatarStyle member.initials, member.avatarHash
-
-            Trello.get "boards/#{BOARD_ID}/lists", (lists) ->
-                for list in lists
-                    window.boardLists[list.id] = list
-                callback()
+                users.create
+                    id: member.id
+                    initials: member.initials
+                    avatarHash: member.avatarHash
+                #setAvatarStyle member.initials, member.avatarHash
+            for boardId in TRELLO_BOARDS
+                Trello.get "boards/#{boardId}/lists", (lists) ->
+                    for list in lists
+                        lists.create
+                            id: list.id
+                            name: list.name
+            callback()
 
 setAvatarStyle = (initials, avatarHash) ->
     # Create a style .avatar-INITIALS for displaying avatars
@@ -204,9 +253,16 @@ getHash = (str) ->
     return hash
 
 handleFeed = (feed) ->
-    window.calendarEvents.gcal = []
     entries = feed.entry
     for entry in entries
+        calendarCards.create
+            id: getHash(entry.id.$t)
+            title: "#{entry.title.$t} on tech duty"
+            url: entry.link[0].href
+            start: new Date(entry['gd$when'][0]['startTime']).getTime()
+            end: new Date(entry['gd$when'][0]['endTime']).getTime()
+            class: "event-warning #{metadata.avatarString} event-large"
+
         initials = NAME_TO_INITIALS_MAPPING[entry.title.$t.toLowerCase()]
         if (not initials) or (not organizationMembersInitials[initials]?)
             console.error "No initials for", entry.title.$t
