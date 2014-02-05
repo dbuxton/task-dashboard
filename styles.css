@@ -31,6 +31,7 @@ body {
 .card {
     display: block;
     padding: 2px;
+    cursor: pointer;
 }
 
 .event-fade {
@@ -44,19 +45,28 @@ body {
     overflow: hidden;
 }
 
-.dh-event-progress {
+#no-due-date .event-large {
+    height: auto;
+    min-height: 35px;
+}
+
+.event-progress {
     background-color: #d1e8ff;
 }
 
-.dh-event-progress.event-in-past {
+.event-gcal {
+    background-color: #fdf1ba;
+}
+
+.event-progress.event-in-past {
     background-color: #fae3e3;
 }
 
-.dh-event-not-started {
+.event-not-started {
     background-color: #dddddd;
 }
 
-.dh-event-not-started.event-in-past {
+.event-not-started.event-in-past {
     background-color: #fae3e3;
 }
 
@@ -77,17 +87,18 @@ body {
     margin-top: 0;
 }
 
-#completed-cards .card {
-    opacity: 0.75;
-}
-
-#completed-cards .card-inner {
+#completed-cards .card-inner, #no-due-date .card-inner {
     margin: 5px;
     border: 1px solid #eee;
     padding: 7px 35px 7px 7px;
     border-radius: 3px;
     overflow: hidden;
 }
+
+#completed-cards .card {
+    opacity: 0.75;
+}
+
 
 .cal-cell1 {
     padding-left: 3px;
@@ -107,6 +118,6 @@ body {
     right:0;
 }
 
-.card.event-success {
-    background-color: #DBFFDB;
+.event-success {
+    background-color: #DBFFDB !important;
 }
