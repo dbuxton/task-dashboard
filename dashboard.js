@@ -262,6 +262,9 @@
     addOne: function(card) {
       var view;
       if (card.get('name').toLowerCase().indexOf('[customer request]') !== -1) {
+        if (card.get('complete') === true || card.get('archived') === true) {
+          return;
+        }
         view = new this.cardView({
           model: card
         });
