@@ -300,31 +300,6 @@ getBoardCards = () ->
                         archived: true
             updateCalendar()
 
-                # metadata = formatCardMetaData(card.idMembers)
-                # boardName = window.boardLists[card.idList].name
-                # if boardName == "Complete"
-                #     cls = "event-success event-fade #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''}"
-                # else if boardName == "In progress"
-                #     cls = "event-progress #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
-                # else
-                #     cls = "event-not-started #{metadata.avatarString} #{if metadata.avatarString != '' then 'event-large' else ''} #{if inPast(card.due, now) then 'event-in-past' else ''}"
-                # dueDate = new Date(card.due).getTime()
-                # if card.due and dueDate > firstOfWeek.getTime()
-                #     window.calendarEvents.trello.push
-                #         id: card.url
-                #         title: "#{card.name}#{metadata.membersString}"
-                #         url: card.url
-                #         start: dueDate
-                #         end: dueDate
-                #         class: cls
-                # else
-                #     if prevBoardName != boardName
-                #         $("<h5>").text("#{boardName}").appendTo($noDueDate)
-                #     link = $("<a>").attr({href: card.url, target: "trello"}).addClass("card #{cls}")
-                #     link.text("#{card.name}#{metadata.membersString}").appendTo($noDueDate)
-                #     prevBoardName = boardName
-
-
 setAvatarStyle = (initials, avatarHash) ->
     # Create a style .avatar-INITIALS for displaying avatars
     imageUrl = "https://trello-avatars.s3.amazonaws.com/#{avatarHash}/30.png"
