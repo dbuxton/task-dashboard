@@ -1,5 +1,5 @@
 
-TRELLO_BOARDS = ['UsP5zlas']
+TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5']
 REFRESH_INTERVAL = 60000
 AUTOREFRESH_HOURS = 6
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
@@ -75,6 +75,8 @@ Card = Backbone.Model.extend
         now = new Date()
         firstOfWeek = getMonday(now).getTime()
         initials = []
+        if @get('start') == 0
+            @set('start', null)
         if userIds? and userIds.length > 0
             for userId in userIds
                 user = trelloUsers.get userId
@@ -127,7 +129,7 @@ calendarCards = new Cards
 CardView = Backbone.View.extend
 
     template: _.template """
-    <div class="card-inner <% avatarClasses %>">
+    <div class="card-inner <%= avatarClasses %>">
         <i class='fa fa-trello'></i>
         <%= name %><% if (initials.length > 0) { %> [<%= initials %>] <% } %>
     </div>
@@ -154,12 +156,11 @@ CompletedCardView = CardView.extend
 UnscheduledCardView = CardView.extend
 
     template: _.template """
-        <i class='fa fa-trello'></i>
         <%= name %><% if (initials.length > 0) { %> [<%= initials %>] <% } %>
     """
 
     className: () ->
-        return "#{@model.get('avatarClasses')} #{@model.get('statusClasses')} event-large"
+        return "card #{@model.get('avatarClasses')} #{@model.get('statusClasses')} event-large"
 
 # We don't need a view for calendar as that's handled by lib
 # We do for other things though
@@ -171,9 +172,7 @@ CardsView = Backbone.View.extend
         @listenTo(calendarCards, 'reset', @addAll)
 
     addAll: () ->
-        unscheduled = new Cards(calendarCards.where
-            dueInPreviousWeek: true
-        )
+        unscheduled = new Cards(calendarCards)
         unscheduled.each(@addOne, @)
 
 
@@ -197,9 +196,35 @@ UnscheduledCardsView = CardsView.extend
     cardView: UnscheduledCardView
 
     addOne: (card) ->
-        if (card.get('archived') == false and
-            (card.get('dueInPreviousWeek') == true or
-                card.get('start') == null))
+        unless card.get('source') == 'trello'
+            return
+        if card.get('archived') == false and card.get('start') == null
+            if card.get('complete') == true
+                return
+            view = new @cardView
+                model: card
+            @$el.append(view.render().el)
+
+OverdueCardsView = UnscheduledCardsView.extend
+
+    el: '#overdue'
+
+    addOne: (card) ->
+        unless card.get('source') == 'trello'
+            return
+        if card.get('archived') == false and card.get('dueInPreviousWeek') == true
+            if card.get('complete') == true
+                return
+            view = new @cardView
+                model: card
+            @$el.append(view.render().el)
+
+CustomerRequestsView = CompletedCardsView.extend
+
+    el: '#customer-requests'
+
+    addOne: (card) ->
+        if card.get('name').toLowerCase().indexOf('[customer request]') != -1
             view = new @cardView
                 model: card
             @$el.append(view.render().el)
@@ -222,6 +247,8 @@ $ ->
 
     completedCards = new CompletedCardsView()
     unscheduledCards = new UnscheduledCardsView()
+    overdueCards = new OverdueCardsView()
+    customerRequestsView = new CustomerRequestsView()
 
     # Disable until we can work out layout
     #updatePipedrive()
@@ -240,9 +267,6 @@ getMonday = (d) ->
     return new Date(d.setDate(diff))
 
 getBoardCards = () ->
-    # $noDueDate = $('#no-due-date').empty()
-    # $('<h4>No due date/in past</h4>').appendTo($noDueDate)
-    # $('<div>').text('Loading...').appendTo($noDueDate)
     now = new Date()
     firstOfWeek = getMonday(now)
     $.each TRELLO_BOARDS, (idx, boardId) ->
@@ -336,12 +360,19 @@ loadBoardLists = (boardId) ->
         deferred.resolve()
     return deferred.promise()
 
+loadBoards = () ->
+    deferred = $.Deferred()
+    $.when(TRELLO_BOARDS.map(loadBoardLists)).done () ->
+        deferred.resolve()
+    return deferred.promise()
+
 loadInitialData = () ->
     deferred = $.Deferred()
+
     $.when(
         loadCurrentMember(),
         loadMembers(),
-        loadBoardLists('UsP5zlas')
+        loadBoards()
     ).done () ->
         deferred.resolve()
     return deferred.promise()
