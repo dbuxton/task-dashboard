@@ -1,5 +1,5 @@
 
-TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5']
+TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5', 'zkkCd4kN']
 REFRESH_INTERVAL = 60000
 AUTOREFRESH_HOURS = 6
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'

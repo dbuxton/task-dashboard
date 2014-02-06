@@ -2,7 +2,7 @@
 (function() {
   var AUTOREFRESH_HOURS, Card, CardView, Cards, CardsView, CompletedCardView, CompletedCardsView, CustomerRequestsView, GCAL_FEED_URL_LS_KEY, List, Lists, NAME_TO_INITIALS_MAPPING, OverdueCardsView, PIPEDRIVE_API_BASE, PIPEDRIVE_API_KEY_LS_KEY, REFRESH_INTERVAL, TRELLO_BOARDS, UnscheduledCardView, UnscheduledCardsView, User, Users, calendarCards, getBoardCards, getHash, getMonday, getPipedriveActivities, handleFeed, loadBoardLists, loadBoards, loadCurrentMember, loadInitialData, loadMembers, refreshPage, setAvatarStyle, trelloLists, trelloUsers, updateCalendar, updateGcal, updatePipedrive;
 
-  TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5'];
+  TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5', 'zkkCd4kN'];
 
   REFRESH_INTERVAL = 60000;
 
