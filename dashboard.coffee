@@ -225,6 +225,8 @@ CustomerRequestsView = CompletedCardsView.extend
 
     addOne: (card) ->
         if card.get('name').toLowerCase().indexOf('[customer request]') != -1
+            if card.get('complete') == true or card.get('archived') == true
+                return
             view = new @cardView
                 model: card
             @$el.append(view.render().el)
