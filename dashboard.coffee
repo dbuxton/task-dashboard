@@ -85,6 +85,8 @@ Card = Backbone.Model.extend
             @set('initials', initials.join(', '))
             @set('avatarClasses', avatarStyles.join(' '))
             @set("title", "#{@get('name')} [#{@get('initials')}]")
+        else
+            @set("title", @get('name'))
         if @get('source') == 'gcal'
             classString = "#{classString} event-gcal"
         if @get('source') == 'trello'

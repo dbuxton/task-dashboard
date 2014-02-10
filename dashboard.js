@@ -108,6 +108,8 @@
         this.set('initials', initials.join(', '));
         this.set('avatarClasses', avatarStyles.join(' '));
         this.set("title", "" + (this.get('name')) + " [" + (this.get('initials')) + "]");
+      } else {
+        this.set("title", this.get('name'));
       }
       if (this.get('source') === 'gcal') {
         classString = "" + classString + " event-gcal";
