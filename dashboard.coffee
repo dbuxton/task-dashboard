@@ -98,6 +98,8 @@ Card = Backbone.Model.extend
                 @set('statusClasses', "#{@get('statusClasses')} event-fade event-success")
             else if list.get('name') == "In progress"
                 @set('statusClasses', "#{@get('statusClasses')} event-progress")
+            else if list.get('name') == "Milestones"
+                @set('statusClasses', "#{@get('statusClasses')} event-milestone")
             else
                 @set('statusClasses', "#{@get('statusClasses')} event-not-started")
             if @get('start')?

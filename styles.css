@@ -54,6 +54,11 @@ body {
     background-color: #d1e8ff;
 }
 
+.event-milestone {
+    background-color: #E9D1FF;
+    font-weight: bold;
+}
+
 .event-gcal {
     background-color: #fdf1ba;
 }
