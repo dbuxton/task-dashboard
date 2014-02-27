@@ -1,7 +1,7 @@
 
 TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5', 'zkkCd4kN', 'ljHglwed']
-REFRESH_INTERVAL = 60000
-AUTOREFRESH_HOURS = 6
+REFRESH_CARDS_INTERVAL_SECONDS = 20
+AUTOREFRESH_HOURS = 1
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
 PIPEDRIVE_API_KEY_LS_KEY = 'arachnysPipedriveApiKey'
 PIPEDRIVE_API_BASE = 'https://api.pipedrive.com/v1'
@@ -19,6 +19,10 @@ NAME_TO_INITIALS_MAPPING =
     "matthew": "MB"
     "mateusz": "MK"
     "james": "JP"
+
+refreshPage = () ->
+    # So we always have most up-to-date code
+    window.location.href = window.location.href
 
 # Models
 List = Backbone.Model.extend
@@ -305,6 +309,7 @@ getBoardCards = () ->
                         end: new Date(card.due).getTime()
                         archived: true
             updateCalendar()
+    setTimeout(getBoardCards, REFRESH_CARDS_INTERVAL_SECONDS*1000)
 
 setAvatarStyle = (initials, avatarHash) ->
     # Create a style .avatar-INITIALS for displaying avatars
@@ -423,7 +428,7 @@ updateGcal = () ->
         $.getJSON "#{feedUrl}?alt=json-in-script&callback=?", (data) ->
             handleFeed data.feed
             # Poll for changes
-            setTimeout(updateGcal, REFRESH_INTERVAL)
+            setTimeout(updateGcal, REFRESH_CARDS_INTERVAL_SECONDS*1000)
     else
         window.alert('Not possible to load Google Calendar data')
 
@@ -434,7 +439,7 @@ updatePipedrive = () ->
         localStorage.setItem(PIPEDRIVE_API_KEY_LS_KEY, JSON.stringify(key))
         apiKey = JSON.parse(localStorage.getItem(PIPEDRIVE_API_KEY_LS_KEY))
     if apiKey
-        setTimeout(updatePipedrive, REFRESH_INTERVAL)
+        setTimeout(updatePipedrive, REFRESH_CARDS_INTERVAL_SECONDS*1000)
         getPipedriveActivities(apiKey)
     else
         window.alert('Not possible to load Pipedrive data')
@@ -481,9 +486,4 @@ window.getEventLine = (eventHash, idx) ->
         return ret
     else
         return {}
-
-refreshPage = () ->
-    # So we always have most up-to-date code
-    window.location.href = window.location.href
-
 
