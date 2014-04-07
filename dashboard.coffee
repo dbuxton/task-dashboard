@@ -1,7 +1,7 @@
 
 TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5', 'zkkCd4kN', 'ljHglwed']
 REFRESH_CARDS_INTERVAL_SECONDS = 20
-AUTOREFRESH_HOURS = 1
+AUTOREFRESH_MINUTES = 1
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
 PIPEDRIVE_API_KEY_LS_KEY = 'arachnysPipedriveApiKey'
 PIPEDRIVE_API_BASE = 'https://api.pipedrive.com/v1'
@@ -19,10 +19,6 @@ NAME_TO_INITIALS_MAPPING =
     "matthew": "MB"
     "mateusz": "MK"
     "james": "JP"
-
-refreshPage = () ->
-    # So we always have most up-to-date code
-    window.location.href = window.location.href
 
 # Models
 List = Backbone.Model.extend
@@ -72,6 +68,7 @@ Card = Backbone.Model.extend
         now = new Date()
         startDate = new Date(this.get('start'))
         @set('inPast', (now.getTime() - startDate.getTime()) > 0)
+        _.debounce(updateCalendar, 300)
 
     calculateAttributes: () ->
         classString = "card event-large"
@@ -113,7 +110,7 @@ Card = Backbone.Model.extend
         @set 'class', "#{classString} #{@get('statusClasses')} #{@get('avatarClasses')}"
 
     viewEvent: () ->
-        window.location.href = url
+        window.open(url)
 
 # Collections
 Cards = Backbone.Collection.extend
@@ -253,7 +250,7 @@ $ ->
     window.calendar2.view('week')
     # About as inelegant as it gets
     window.calendar2.navigate('next')
-    setTimeout(refreshPage, 1000*60*60*AUTOREFRESH_HOURS)
+    setTimeout("location.reload(true);", 1000*60*AUTOREFRESH_MINUTES)
 
     completedCards = new CompletedCardsView()
     unscheduledCards = new UnscheduledCardsView()
