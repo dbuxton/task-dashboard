@@ -27,7 +27,8 @@
     "harry": "HW",
     "matthew": "MB",
     "mateusz": "MK",
-    "james": "JP"
+    "james": "JP",
+    "Nicole Bossieux": "NB"
   };
 
   List = Backbone.Model.extend({

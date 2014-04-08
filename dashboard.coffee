@@ -19,6 +19,7 @@ NAME_TO_INITIALS_MAPPING =
     "matthew": "MB"
     "mateusz": "MK"
     "james": "JP"
+    "Nicole Bossieux": "NB"
 
 # Models
 List = Backbone.Model.extend
