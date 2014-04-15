@@ -1,6 +1,8 @@
 body {
     font-family: arial;
     font-size: 12px;
+    background-color: #000;
+    color: white;
 }
 
 #loggedout {
@@ -19,7 +21,6 @@ body {
 
 #header {
     border-bottom: 1px solid #000;
-    background: #eee;
     padding-top: 8px;
     padding-bottom: 8px;
 }
@@ -34,9 +35,9 @@ body {
     cursor: pointer;
 }
 
-.event-fade {
+/*.event-fade {
     opacity: 0.5;
-}
+}*/
 
 .event-large {
     height:35px;
@@ -51,32 +52,32 @@ body {
 }
 
 .event-progress {
-    background-color: #d1e8ff;
+    background-color: #1C7CDD;
 }
 
 .event-milestone {
-    background-color: #E9D1FF;
+    background-color: #F52488;
     font-weight: bold;
 }
 
 .event-gcal {
-    background-color: #fdf1ba;
+    background-color: #E000FF;
 }
 
 .event-progress.event-in-past {
-    background-color: #fae3e3;
+    background-color: #EE2626;
 }
 
 .event-not-started {
-    background-color: #dddddd;
+    background-color: #636363;
 }
 
 .event-not-started.event-in-past {
-    background-color: #fae3e3;
+    background-color: #EE2626;
 }
 
 .card.event-in-past {
-    background-color: #fae3e3;
+    background-color: #EE2626;
 }
 
 .full-width-row-wrapper {
@@ -90,6 +91,34 @@ body {
 .cal-context hr {
     margin-bottom: 0;
     margin-top: 0;
+}
+
+.cal-day-today {
+    background-color: #333;
+}
+
+.cal-row-head {
+    background-color: #666;
+}
+
+.cal-row-head:hover *, .cal-row-fluid *:hover {
+    background-color: #999 !important;
+}
+
+.cal-row-fluid:hover {
+    background-color: #333;
+}
+
+.cal-column {
+    border-left: 1px solid #666;
+}
+
+a.cal-event-week {
+    color: #ddd;
+}
+
+.cal-week-box-no-weekend {
+    border: 0;
 }
 
 #completed-cards .card-inner, #customer-requests .card-inner {
@@ -132,5 +161,5 @@ body {
 }
 
 .event-success {
-    background-color: #DBFFDB !important;
+    background-color: #048D04 !important;
 }
