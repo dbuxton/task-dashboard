@@ -1,7 +1,7 @@
 
 TRELLO_BOARDS = ['UsP5zlas', 'cZd9apE5', 'zkkCd4kN', 'ljHglwed']
-REFRESH_CARDS_INTERVAL_SECONDS = 900
-AUTOREFRESH_MINUTES = 1
+REFRESH_CARDS_INTERVAL_SECONDS = 60
+AUTOREFRESH_MINUTES = 15
 GCAL_FEED_URL_LS_KEY = 'arachnysDashboardFeedUrl'
 PIPEDRIVE_API_KEY_LS_KEY = 'arachnysPipedriveApiKey'
 PIPEDRIVE_API_BASE = 'https://api.pipedrive.com/v1'
