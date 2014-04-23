@@ -56,6 +56,7 @@
       listId: null,
       archived: false,
       complete: true,
+      display: false,
       inPast: false,
       userIds: [],
       initials: [],
@@ -123,12 +124,16 @@
         list = trelloLists.get(this.get('listId'));
         if (list.get('name') === "Complete") {
           this.set('complete', true);
+          this.set('display', true);
           this.set('statusClasses', "" + (this.get('statusClasses')) + " event-fade event-success");
         } else if (list.get('name') === "In progress") {
+          this.set('display', true);
           this.set('statusClasses', "" + (this.get('statusClasses')) + " event-progress");
         } else if (list.get('name') === "Milestones") {
+          this.set('display', true);
           this.set('statusClasses', "" + (this.get('statusClasses')) + " event-milestone");
-        } else {
+        } else if (list.get('name') === 'Scheduled') {
+          this.set('display', true);
           this.set('statusClasses', "" + (this.get('statusClasses')) + " event-not-started");
         }
         if (this.get('start') != null) {
@@ -230,6 +235,9 @@
     addOne: function(card) {
       var view;
       if (card.get('source') !== 'trello') {
+        return;
+      }
+      if (card.get('display') !== true) {
         return;
       }
       if (card.get('archived') === false && card.get('start') === null) {

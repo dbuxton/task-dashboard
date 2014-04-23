@@ -44,6 +44,7 @@ Card = Backbone.Model.extend
         listId: null
         archived: false
         complete: true
+        display: false
         inPast: false
         userIds: []
         initials: []
@@ -97,12 +98,16 @@ Card = Backbone.Model.extend
             list = trelloLists.get(@get('listId'))
             if list.get('name') == "Complete"
                 @set('complete', true)
+                @set('display', true)
                 @set('statusClasses', "#{@get('statusClasses')} event-fade event-success")
             else if list.get('name') == "In progress"
+                @set('display', true)
                 @set('statusClasses', "#{@get('statusClasses')} event-progress")
             else if list.get('name') == "Milestones"
+                @set('display', true)
                 @set('statusClasses', "#{@get('statusClasses')} event-milestone")
-            else
+            else if list.get('name') == 'Scheduled'
+                @set('display', true)
                 @set('statusClasses', "#{@get('statusClasses')} event-not-started")
             if @get('start')?
                 due = new Date(@get('start')).getTime()
@@ -203,6 +208,8 @@ UnscheduledCardsView = CardsView.extend
 
     addOne: (card) ->
         unless card.get('source') == 'trello'
+            return
+        unless card.get('display') == true
             return
         if card.get('archived') == false and card.get('start') == null
             if card.get('complete') == true
@@ -484,4 +491,3 @@ window.getEventLine = (eventHash, idx) ->
         return ret
     else
         return {}
-
