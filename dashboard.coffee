@@ -20,6 +20,7 @@ NAME_TO_INITIALS_MAPPING =
     "mateusz": "MK"
     "james": "JP"
     "Nicole Bossieux": "NB"
+    "Omar Khan": "OK"
 
 # Models
 List = Backbone.Model.extend
@@ -82,8 +83,9 @@ Card = Backbone.Model.extend
             @set('start', null)
         if userIds? and userIds.length > 0
             for userId in userIds
-                user = trelloUsers.get userId
-                initials.push user.get('initials')
+                user = trelloUsers.get(userId)
+                if user
+                  initials.push(user.get('initials'))
             avatarStyles = ("avatar-#{i}" for i in initials)
             @set('initials', initials.join(', '))
             @set('avatarClasses', avatarStyles.join(' '))

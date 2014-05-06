@@ -28,7 +28,8 @@
     "matthew": "MB",
     "mateusz": "MK",
     "james": "JP",
-    "Nicole Bossieux": "NB"
+    "Nicole Bossieux": "NB",
+    "Omar Khan": "OK"
   };
 
   List = Backbone.Model.extend({
@@ -97,7 +98,9 @@
         for (_i = 0, _len = userIds.length; _i < _len; _i++) {
           userId = userIds[_i];
           user = trelloUsers.get(userId);
-          initials.push(user.get('initials'));
+          if (user) {
+            initials.push(user.get('initials'));
+          }
         }
         avatarStyles = (function() {
           var _j, _len1, _results;
